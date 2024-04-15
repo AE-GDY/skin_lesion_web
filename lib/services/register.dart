@@ -23,10 +23,11 @@ class _RegisterState extends State<Register> {
   bool parentSelected = true;
   bool isSignUp = false;
   bool wrongEmailOrPassword = false;
-
+  bool isPasswordVisible = false;
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -100,20 +101,31 @@ class _RegisterState extends State<Register> {
               margin: EdgeInsets.all(10),
               child: TextFormField(
                 controller: passwordController,
-                ///keyboardType: TextInputType.number,
-                decoration:  InputDecoration(
+                obscureText: !isPasswordVisible,
+                decoration: InputDecoration(
                   labelText: 'Password',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
                     borderSide: BorderSide(
-                      color: Colors.blue, // Change border color here
-                      width: 2.0, // Change border width here
+                      color: Colors.blue,  // Sets the border color
+                      width: 2.0,  // Sets the border width
                     ),
                   ),
-
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        isPasswordVisible = !isPasswordVisible;  // Toggle the state between visible and hidden
+                      });
+                    },
+                  ),
                 ),
+                keyboardType: TextInputType.text,  // It's better for passwords to allow all types of characters
               ),
             ),
+
 
             SizedBox(height: 10,),
 

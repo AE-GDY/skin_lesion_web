@@ -136,15 +136,37 @@ class _ImageViewState extends State<ImageView> {
                                       ),
                                       child: TextButton(
                                         onPressed: () async {
-
                                           if(replyController.text.isNotEmpty){
                                             List<dynamic> doctorResponses = snapshot.data['$currentIndex']['doctor-responses'];
                                             doctorResponses.add({
                                               'doctor-name': userName,
                                               'doctor-response':replyController.text,
                                             });
-                                            await Database().updatePatientDoctorResponses(currentIndex, doctorResponses);
-                                            Navigator.popAndPushNamed(context, '/');
+                                            try {
+                                              await Database().updatePatientDoctorResponses(currentIndex, doctorResponses);
+                                              // Clear the replyController's text
+                                              replyController.clear();
+
+                                              Navigator.popAndPushNamed(context, '/');
+
+                                              // Show confirmation SnackBar
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                  content: Text("Reply sent successfully."),
+                                                  duration: Duration(seconds: 2),
+                                                ),
+                                              );
+                                            }
+                                            catch (error) {
+                                              debugPrint("Error - $error");
+                                              // Show error message if the database update fails
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                  content: Text("Failed to send reply. Please try again."),
+                                                  duration: Duration(seconds: 2),
+                                                ),
+                                              );
+                                            }
                                           }
                                         },
                                         child: Text("Send", style: TextStyle(
