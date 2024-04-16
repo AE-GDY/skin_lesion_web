@@ -3,7 +3,6 @@ import '../constants.dart';
 import '../functions/screen-dimensions.dart';
 import 'database.dart';
 
-
 class Register extends StatefulWidget {
   const Register({Key? key}) : super(key: key);
 
@@ -14,235 +13,198 @@ class Register extends StatefulWidget {
 int currentDoctorIndex = 0;
 
 class _RegisterState extends State<Register> {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
-  TextEditingController nameController = TextEditingController();
-  TextEditingController phoneNumber = TextEditingController();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-
-  bool parentSelected = true;
   bool isSignUp = false;
   bool wrongEmailOrPassword = false;
   bool isPasswordVisible = false;
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
+        title: const Text(
+          "DermaScreen",
+          style: TextStyle(fontFamily: "Montserrat", fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        backgroundColor: Color(0xFF10217D),
         automaticallyImplyLeading: false,
-        surfaceTintColor: Colors.white,
         elevation: 0,
-        // centerTitle: true,
       ),
       body: Container(
-        margin: EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(height: 20,),
-            Text("Doctor's Account", style: TextStyle(
-              fontSize: 30,
-            ),),
-            SizedBox(height: 30,),
-            Text(isSignUp?"Sign up to continue":"Sign in to continue", style: TextStyle(
-              fontSize: 25,
-            ),),
-            SizedBox(height: 20,),
-            isSignUp?SizedBox(height: 20,):Container(),
-
-            isSignUp? Container(
-              width: screenWidth(context) / 2 ,
-              height: 50,
-              margin: EdgeInsets.all(10),
-              child: TextFormField(
-                controller: nameController,
-                decoration:  InputDecoration(
-                  labelText: 'Full Name',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(
-                      color: Colors.blue, // Change border color here
-                      width: 2.0, // Change border width here
-                    ),
-                  ),
-
-                ),
-              ),
-            ):Container(),
-
-            isSignUp?Container():SizedBox(height: 30,),
-
-            Container(
-              width: screenWidth(context) / 2,
-              height: 50,
-              margin: EdgeInsets.all(10),
-              child: TextFormField(
-                controller: emailController,
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(
-                      color: Colors.blue, // Change border color here
-                      width: 2.0, // Change border width here
-                    ),
-                  ),
-
-                ),
-              ),
-            ),
-
-
-
-            Container(
-              width: screenWidth(context) / 2,
-              height: 50,
-              margin: EdgeInsets.all(10),
-              child: TextFormField(
-                controller: passwordController,
-                obscureText: !isPasswordVisible,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(
-                      color: Colors.blue,  // Sets the border color
-                      width: 2.0,  // Sets the border width
-                    ),
-                  ),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        isPasswordVisible = !isPasswordVisible;  // Toggle the state between visible and hidden
-                      });
-                    },
-                  ),
-                ),
-                keyboardType: TextInputType.text,  // It's better for passwords to allow all types of characters
-              ),
-            ),
-
-
-            SizedBox(height: 10,),
-
-            Container(
-              margin: EdgeInsets.all(10),
-              child: Column(
-                children: [
-                  FutureBuilder(
-                    future: Future.wait([doctorsData()]),
-                    builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-                      if(snapshot.connectionState == ConnectionState.done){
-                        if(snapshot.hasError){
-                          return  Text("");
-                        }
-                        else if(snapshot.hasData){
-                          return Container(
-                            width: screenWidth(context) / 3,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              gradient: LinearGradient(
-                                  colors: [
-                                    Colors.indigo,
-                                    Colors.blue,
-                                    Colors.lightBlue,
-                                    Colors.lightBlueAccent,
-                                  ]
-                              ),
-                            ),
-                            child: TextButton(
-                                onPressed: () async {
-
-
-                                  int doctorAmount = snapshot.data[0]['doctor-amount'];
-
-                                  if(isSignUp){
-                                    userName = nameController.text;
-                                    await Database().addDoctor(
-                                      doctorAmount,
-                                      nameController.text,
-                                      emailController.text,
-                                      passwordController.text,
-                                    );
-                                    setState(() {
-                                      isSignUp = false;
-                                    });
-                                  }
-                                  else{
-                                    int doctorIndex = 0;
-                                    while(doctorIndex < doctorAmount){
-                                      if(emailController.text == snapshot.data[0]['$doctorIndex']['email']){
-                                        if(passwordController.text == snapshot.data[0]['$doctorIndex']['password']){
-                                          userName = snapshot.data[0]['$doctorIndex']['name'];
-                                          userEmail = snapshot.data[0]['$doctorIndex']['email'];
-                                          currentDoctorIndex = doctorIndex;
-                                          break;
-                                        }
-                                      }
-                                      doctorIndex++;
-                                    }
-
-                                    if(doctorIndex == doctorAmount){
-                                      setState(() {
-                                        wrongEmailOrPassword = true;
-                                      });
-                                    }
-                                    else{
-                                      Navigator.pushNamed(context, '/');
-                                    }
-                                  }
-                                },
-                                child: Text(isSignUp?'Create Account':'Sign in',style: TextStyle(
-                                  color: Colors.white,
-                                ),)
-                            ),
-                          );
-                        }
-                      }
-                      return const CircularProgressIndicator();
-                    },
-
-                  ),
-
-                  SizedBox(height: wrongEmailOrPassword?10:10,),
-                  wrongEmailOrPassword?const Text("Wrong email or password", style: TextStyle(color: Colors.red),):Container(),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(isSignUp?"Already have an account? ":"Don't have an account? ", style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 16
-                      ),),
-                      TextButton(
-                        onPressed: (){
-                          //changeToSignUp();
-                          setState(() {
-                            isSignUp = !isSignUp;
-                            wrongEmailOrPassword = false;
-                          });
-                        },
-                        child: Text(isSignUp?"Sign in":"Sign up",style: const TextStyle(
-                          //  decoration: TextDecoration.underline,
-                          color: Colors.blue,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
+        color: Colors.white,
+        padding: const EdgeInsets.all(20),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(isSignUp ? "Sign up to continue" : "Sign in to continue", style: TextStyle(fontSize: 25, color: Color(0xFF10217D))),
+              const SizedBox(height: 20),
+              if (isSignUp) buildNameField(),
+              buildEmailField(),
+              buildPasswordField(),
+              const SizedBox(height: 20),
+              buildActionContainer(),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget buildNameField() {
+    return buildTextField(nameController, 'Full Name');
+  }
+
+  Widget buildEmailField() {
+    return buildTextField(emailController, 'Email');
+  }
+
+  Widget buildPasswordField() {
+    return Container(
+      width: screenWidth(context) / 2,
+      height: 50,
+      margin: const EdgeInsets.all(10),
+      child: TextFormField(
+        controller: passwordController,
+        obscureText: !isPasswordVisible,
+        decoration: InputDecoration(
+          labelText: 'Password',
+          labelStyle: TextStyle(color: Color(0xFF0063D9)),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+            borderSide: BorderSide(color: Color(0xFF0063D9), width: 2.0),
+          ),
+          suffixIcon: IconButton(
+            icon: Icon(isPasswordVisible ? Icons.visibility : Icons.visibility_off, color: Color(0xFF0063D9)),
+            onPressed: () {
+              setState(() {
+                isPasswordVisible = !isPasswordVisible;
+              });
+            },
+          ),
+        ),
+        keyboardType: TextInputType.text,
+      ),
+    );
+  }
+
+  Widget buildTextField(TextEditingController controller, String label) {
+    return Container(
+      width: screenWidth(context) / 2,
+      height: 50,
+      margin: const EdgeInsets.all(10),
+      child: TextFormField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(color: Color(0xFF0063D9)),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+            borderSide: BorderSide(color: Color(0xFF0063D9), width: 2.0),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildActionContainer() {
+    return Container(
+      margin: const EdgeInsets.all(10),
+      child: Column(
+        children: [
+          FutureBuilder(
+            future: Future.wait([doctorsData()]),
+            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                if (snapshot.hasError) {
+                  return const Text("Error loading data");
+                } else if (snapshot.hasData) {
+                  return buildSubmitButton(snapshot);
+                }
+              }
+              return const CircularProgressIndicator();
+            },
+          ),
+          if (wrongEmailOrPassword)
+            const Padding(
+              padding: EdgeInsets.only(top: 10),
+              child: Text("Wrong email or password", style: TextStyle(color: Colors.red)),
+            ),
+          buildSignUpSignInToggle(),
+        ],
+      ),
+    );
+  }
+
+  Widget buildSubmitButton(AsyncSnapshot<dynamic> snapshot) {
+    return Container(
+      width: screenWidth(context) / 3,
+      height: 50,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: const LinearGradient(colors: [
+          Color(0xFF10217D),
+          Color(0xFF0063D9),
+        ]),
+      ),
+      child: TextButton(
+        onPressed: () async {
+          int doctorAmount = snapshot.data[0]['doctor-amount'];
+          if (isSignUp) {
+            await Database().addDoctor(
+              doctorAmount,
+              nameController.text,
+              emailController.text,
+              passwordController.text,
+            );
+            setState(() {
+              isSignUp = false;
+              wrongEmailOrPassword = false; // Reset error state upon successful registration
+            });
+          } else {
+            bool found = false;
+            for (int i = 0; i < doctorAmount; i++) {
+              var doctor = snapshot.data[0]['$i'];
+              if (emailController.text == doctor['email'] && passwordController.text == doctor['password']) {
+                setState(() {
+                  currentDoctorIndex = i;
+                  wrongEmailOrPassword = false;
+                  Navigator.pushNamed(context, '/'); // Assuming this is the dashboard route
+                });
+                found = true;
+                break;
+              }
+            }
+            if (!found) {
+              setState(() {
+                wrongEmailOrPassword = true;
+              });
+            }
+          }
+        },
+        child: Text(isSignUp ? 'Create Account' : 'Sign in', style: const TextStyle(color: Colors.white)),
+      ),
+    );
+  }
+
+  Widget buildSignUpSignInToggle() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(isSignUp ? "Already have an account? " : "Don't have an account? ", style: const TextStyle(color: Color(0xFF0063D9), fontSize: 16)),
+        TextButton(
+          onPressed: () {
+            setState(() {
+              isSignUp = !isSignUp;
+              wrongEmailOrPassword = false; // Reset error state when toggling between sign in and sign up
+            });
+          },
+          child: Text(isSignUp ? "Sign in" : "Sign up", style: const TextStyle(color: Color(0xFF10217D), fontWeight: FontWeight.bold, fontSize: 16)),
+        ),
+      ],
     );
   }
 }

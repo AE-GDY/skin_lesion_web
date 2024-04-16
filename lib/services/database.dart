@@ -39,4 +39,14 @@ class Database{
     );
   }
 
+  Future addAppointment(int patientIndex, dynamic doctorAppointments) async {
+    return await database.doc('Patient Data').set({
+      '$patientIndex' : {
+        'doctor-appointments': doctorAppointments,
+      },
+    },
+      SetOptions(merge: true),
+    );
+  }
+
 }
