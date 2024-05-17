@@ -21,6 +21,7 @@ class _ImageViewState extends State<ImageView> {
   @override
   void initState() {
     super.initState();
+    /*
     getData(currentIndex, imageBytes, '', setState).then((result) {
       setState(() {
         imageBytes = result;
@@ -28,6 +29,7 @@ class _ImageViewState extends State<ImageView> {
     }).catchError((error) {
       debugPrint("Error - $error");
     });
+    */
   }
 
   TextEditingController replyController = TextEditingController();
@@ -37,8 +39,20 @@ class _ImageViewState extends State<ImageView> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
+        iconTheme: IconThemeData(
+          color: Colors.white,
+        ),
         title: Text("MySkin",style: TextStyle(color: Colors.white),),
-        backgroundColor: Colors.blue,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF10217D), Color(0xFF0063D9)],
+            ),
+          ),
+        ),
+
       ),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
@@ -79,10 +93,24 @@ class _ImageViewState extends State<ImageView> {
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),),
-                            Text("$patientSymptoms",style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.normal,
-                            )),
+                            Center(
+                              child: Container(
+                                height: 300,
+                                child: ListView.builder(
+                                    itemCount: symptomTitles.length,
+                                    itemBuilder: (context, index){
+                                      return ListTile(
+                                        title: Text(symptomTitlesMapping[symptomTitles[index]]!, style: TextStyle(
+                                          fontSize: 17,
+                                        ),),
+                                        subtitle: Text(patientSymptoms[symptomTitles[index]]!, style: TextStyle(
+                                          fontSize: 15,
+                                          color: Colors.grey,
+                                        ),),
+                                      );
+                                    }),
+                              ),
+                            ),
                             Text("Classification",style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -127,10 +155,7 @@ class _ImageViewState extends State<ImageView> {
                                         borderRadius: BorderRadius.circular(10),
                                         gradient: LinearGradient(
                                             colors: [
-                                              Colors.indigo,
-                                              Colors.blue,
-                                              Colors.lightBlue,
-                                              Colors.lightBlueAccent,
+                                              Color(0xFF10217D), Color(0xFF0063D9)
                                             ]
                                         ),
                                       ),

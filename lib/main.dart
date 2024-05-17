@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:skin_lesion_web/screens/home.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:skin_lesion_web/screens/image_view.dart';
-import 'package:skin_lesion_web/services/register.dart';
+import 'package:skin_lesion_web/screens/register.dart';
+
+import 'constants.dart';
 
 Future<void> main() async {
 
@@ -28,16 +30,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'DermaScreen Web',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFF10217D)),
         useMaterial3: true,
       ),
       initialRoute: '/register',
       routes: {
         '/register':(context) => const Register(),
         '/':(context) => const Home(),
-        '/image-view':(context) => const ImageView(),
+        '/image-view':(context) => refresh?const Home():const ImageView(),
       },
     );
   }

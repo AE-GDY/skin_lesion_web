@@ -15,7 +15,7 @@ class Home extends StatefulWidget {
 Uint8List imageBytes = Uint8List(0);
 int currentIndex = 0;
 String patientName = "";
-String patientSymptoms = "";
+dynamic patientSymptoms = [];
 String classification = "";
 
 class _HomeState extends State<Home> {
@@ -75,7 +75,7 @@ class _HomeState extends State<Home> {
         ),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.logout),
+            icon: Icon(Icons.logout, color: Colors.white,),
             onPressed: () {
               // Implement logout functionality here (backend)
               // go back to register
@@ -110,46 +110,76 @@ class _HomeState extends State<Home> {
                       child: ListView.builder(
                           itemCount: snapshot.data[0]['patient-amount'],
                           itemBuilder: (context, index) {
-                            return Card(
-                              elevation: 4,
-                              surfaceTintColor: Colors.white,
-                              margin: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                              child: ListTile(
-                                leading: Icon(Icons.person, color: Color(0xFF10217D)),
-                                title: Text("${snapshot.data[0]['$index']['patient-name']} | Classification: ${snapshot.data[0]['$index']['classification']} | Symptoms: ${snapshot.data[0]['$index']['symptoms']}"),
-                                subtitle: Text("${snapshot.data[0]['$index']['patient-email']}"),
-                                trailing: Wrap(
-                                  spacing: 12,
-                                  children: <Widget>[
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        currentIndex = index;
-                                        getData(index, imageBytes, '', setState).then((result) {
-                                          setState(() {
-                                            imageBytes = result;
+                            if(snapshot.data[0]['$index']['classification'] == ""){
+                              return Container();
+                            }
+                            else{
+                              return Card(
+                                elevation: 4,
+                                surfaceTintColor: Colors.white,
+                                margin: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                                child: ListTile(
+                                  leading: Icon(Icons.person, color: Color(0xFF10217D)),
+                                  title: Text("${snapshot.data[0]['$index']['patient-name']} | Classification: ${snapshot.data[0]['$index']['classification']}"),
+                                  subtitle: Text("${snapshot.data[0]['$index']['patient-email']}"),
+                                  trailing: Wrap(
+                                    spacing: 12,
+                                    children: <Widget>[
+                                      ElevatedButton(
+                                        onPressed: () async {
+
+                                          showDialog(
+                                              context: context,
+                                              barrierDismissible: false,
+                                              builder: (context) => Center(
+                                                child: CircularProgressIndicator(
+                                                  color: mainColor,
+                                                ),
+                                              )
+                                          );
+
+                                          currentIndex = index;
+                                          refresh = false;
+                                          await getData(index, imageBytes, '', setState).then((result) {
+                                            setState(() {
+                                              imageBytes = result;
+                                            });
+                                          }).catchError((error) {
+                                            debugPrint("Error - $error");
                                           });
-                                        }).catchError((error) {
-                                          debugPrint("Error - $error");
-                                        });
-                                        patientName = snapshot.data[0]['$index']['patient-name'];
-                                        patientSymptoms = snapshot.data[0]['$index']['symptoms'];
-                                        classification = snapshot.data[0]['$index']['classification'];
-                                        Navigator.pushNamed(context, '/image-view');
-                                      },
-                                      child: Text("View Image"),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Color(0xFF10217D), // Button background
-                                        foregroundColor: Colors.white, // Text color
+
+                                          patientName = snapshot.data[0]['$index']['patient-name'];
+                                          patientSymptoms = snapshot.data[0]['$index']['symptoms'];
+                                          classification = snapshot.data[0]['$index']['classification'];
+
+                                          /*
+                                          await getData(currentIndex, imageBytes, '', setState).then((result) {
+                                            setState(() {
+                                              imageBytes = result;
+                                            });
+                                          }).catchError((error) {
+                                            debugPrint("Error - $error");
+                                          });
+                                          */
+                                          Navigator.of(context, rootNavigator: true).pop();
+                                          Navigator.pushNamed(context, '/image-view');
+                                        },
+                                        child: Text("View Image"),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Color(0xFF10217D), // Button background
+                                          foregroundColor: Colors.white, // Text color
+                                        ),
                                       ),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(Icons.calendar_today, color: Color(0xFF10217D)),
-                                      onPressed:  ()async  =>  scheduleAppointment(context, snapshot.data, index, snapshot),
-                                    ),
-                                  ],
+                                      IconButton(
+                                        icon: Icon(Icons.calendar_today, color: Color(0xFF10217D)),
+                                        onPressed:  ()async  =>  scheduleAppointment(context, snapshot.data, index, snapshot),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            );
+                              );
+                            }
+
                           }),
                     ),
                   );
