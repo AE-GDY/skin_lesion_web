@@ -16,8 +16,8 @@ Uint8List imageBytes = Uint8List(0);
 int currentIndex = 0;
 String patientName = "";
 dynamic patientSymptoms = [];
-String classification = "";
-
+List<dynamic> classifications = [];
+List<dynamic> probabilities = [];
 class _HomeState extends State<Home> {
 
   void scheduleAppointment(BuildContext context, dynamic data, int index, AsyncSnapshot<dynamic> snapshot) async {
@@ -120,7 +120,7 @@ class _HomeState extends State<Home> {
                                 margin: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                                 child: ListTile(
                                   leading: Icon(Icons.person, color: Color(0xFF10217D)),
-                                  title: Text("${snapshot.data[0]['$index']['patient-name']} | Classification: ${snapshot.data[0]['$index']['classification']}"),
+                                  title: Text("${snapshot.data[0]['$index']['patient-name']}"),
                                   subtitle: Text("${snapshot.data[0]['$index']['patient-email']}"),
                                   trailing: Wrap(
                                     spacing: 12,
@@ -150,7 +150,8 @@ class _HomeState extends State<Home> {
 
                                           patientName = snapshot.data[0]['$index']['patient-name'];
                                           patientSymptoms = snapshot.data[0]['$index']['symptoms'];
-                                          classification = snapshot.data[0]['$index']['classification'];
+                                          classifications = snapshot.data[0]['$index']['classification'];
+                                          probabilities = snapshot.data[0]['$index']['probabilities'];
 
                                           /*
                                           await getData(currentIndex, imageBytes, '', setState).then((result) {
